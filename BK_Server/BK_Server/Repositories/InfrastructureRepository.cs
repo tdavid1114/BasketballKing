@@ -1,4 +1,5 @@
 ﻿using BK_Server.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace BK_Server.Repositories
 {
@@ -11,9 +12,9 @@ namespace BK_Server.Repositories
             this.context = context;
         }
 
-        public Infrastructure getInfrastructure(sbyte teamid)
+        public Task<Infrastructure> getInfrastructure(sbyte teamid)
         {
-            return context.Set<Infrastructure>().Where(x => x.Id == teamid).FirstOrDefault();
+            return context.Set<Infrastructure>().Where(x => x.Id == teamid).FirstOrDefaultAsync();
         }
     }
 }

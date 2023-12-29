@@ -25,68 +25,98 @@ namespace BK_Server.Services
             this.teamService = teamService;
         }
 
-        public IQueryable<Player> getMarketPlayers()
+        public async Task<List<Player>> getMarketPlayers()
         {
-            return playerRepository.getMarketPlayers();
+            return await playerRepository.getMarketPlayers();
         }
 
-        public List<GetPlayerDTO> getMyPlayers(sbyte teamid)
+        public async Task<List<GetPlayerDTO>> getMyPlayers(sbyte teamid)
         {
-            List<Player> players = playerRepository.getMyPlayers(teamid).ToList();
-            List<Upgrade> upgrades = upgradeRepository.GetActiveUpgrades().ToList();
+            List<Player> players = await playerRepository.getMyPlayers(teamid);
             List<GetPlayerDTO> playersDto = new List<GetPlayerDTO>();
 
             foreach (var player in players)
             {
-                var GetPlayerDTO = mapper.Map<GetPlayerDTO>(player);
-                var foundUpgrade = upgrades.Find(x => x.Playerid == GetPlayerDTO.Playerid);
-                if (foundUpgrade != null)
-                {
-                    GetPlayerDTO.Expirydate = foundUpgrade.Expirydate;
-                }
-                playersDto.Add(GetPlayerDTO);
+                List<Upgrade> upgrades = await upgradeRepository.getActiveUpgradesByPlayer(player.Playerid);
+                var playerDTO = mapper.Map<GetPlayerDTO>(player);
+                var foundUpgrade = upgrades.Where(x => x.Playerid == playerDTO.Playerid);
+                playerDTO.Strength = new Tuple<sbyte, DateTime, short>(
+                    player.Strength,
+                    foundUpgrade.Where(x => x.Attribute == "Strength").Select(x => x.Expirydate).FirstOrDefault(),
+                    foundUpgrade.Where(x => x.Attribute == "Strength").Select(x => x.Cost).FirstOrDefault()
+                    );
+                playerDTO.Speed = new Tuple<sbyte, DateTime, short>(
+                    player.Speed,
+                    foundUpgrade.Where(x => x.Attribute == "Speed").Select(x => x.Expirydate).FirstOrDefault(),
+                    foundUpgrade.Where(x => x.Attribute == "Speed").Select(x => x.Cost).FirstOrDefault()
+                    );
+                playerDTO.Shooting = new Tuple<sbyte, DateTime, short>(
+                    player.Shooting,
+                    foundUpgrade.Where(x => x.Attribute == "Shooting").Select(x => x.Expirydate).FirstOrDefault(),
+                    foundUpgrade.Where(x => x.Attribute == "Shooting").Select(x => x.Cost).FirstOrDefault()
+                    );
+                playerDTO.Finishing = new Tuple<sbyte, DateTime, short>(
+                    player.Finishing,
+                    foundUpgrade.Where(x => x.Attribute == "Finishing").Select(x => x.Expirydate).FirstOrDefault(),
+                    foundUpgrade.Where(x => x.Attribute == "Finishing").Select(x => x.Cost).FirstOrDefault()
+                    );
+                playerDTO.Playmaking = new Tuple<sbyte, DateTime, short>(
+                    player.Playmaking,
+                    foundUpgrade.Where(x => x.Attribute == "Playmaking").Select(x => x.Expirydate).FirstOrDefault(),
+                    foundUpgrade.Where(x => x.Attribute == "Playmaking").Select(x => x.Cost).FirstOrDefault()
+                    );
+                playerDTO.Defence = new Tuple<sbyte, DateTime, short>(
+                    player.Defence,
+                    foundUpgrade.Where(x => x.Attribute == "Defence").Select(x => x.Expirydate).FirstOrDefault(),
+                    foundUpgrade.Where(x => x.Attribute == "Defence").Select(x => x.Cost).FirstOrDefault()
+                    );
+                playerDTO.Blocking = new Tuple<sbyte, DateTime, short>(
+                    player.Blocking,
+                    foundUpgrade.Where(x => x.Attribute == "Blocking").Select(x => x.Expirydate).FirstOrDefault(),
+                    foundUpgrade.Where(x => x.Attribute == "Blocking").Select(x => x.Cost).FirstOrDefault()
+                    );
+                playerDTO.Rebounding = new Tuple<sbyte, DateTime, short>(
+                    player.Rebounding,
+                    foundUpgrade.Where(x => x.Attribute == "Rebounding").Select(x => x.Expirydate).FirstOrDefault(),
+                    foundUpgrade.Where(x => x.Attribute == "Rebounding").Select(x => x.Cost).FirstOrDefault()
+                    );
+
+                playersDto.Add(playerDTO);
             }
             return playersDto;
         }
 
-        public bool updatePlayingStatus(UpdatePlayerDTO playerDTO)
+        public async Task<bool> updatePlayingStatus(UpdatePlayerDTO playerDTO)
         {
-            Player player = playerRepository.getMyPlayer(playerDTO.Playerid);
+            Player player = await playerRepository.getMyPlayer(playerDTO.Playerid);
             if (player.IsInjured == 0)
             {
                 player.IsStarter = playerDTO.IsStarter;
-                return playerRepository.updatePlayingStatus(player);
+                return await playerRepository.updatePlayingStatus(player);
             }
             return false;
         }
 
-        public bool purchasePlayerAttributeUpdate(UpgradeDTO upgradeDTO)
+        public async Task<bool> purchasePlayerAttributeUpdate(UpgradeDTO upgradeDTO)
         {
-            Player player = playerRepository.getMyPlayer(upgradeDTO.Playerid);
-            sbyte attributeLevel = (sbyte)player.GetType().GetProperty(upgradeDTO.Attribute).GetValue(player);
-            sbyte gymLevel = infrastructureRepository.getInfrastructure(player.Teamid).Gym;
-            short cost = UpgradeTimeAndMoney.calculateMoney(attributeLevel, gymLevel);
-            if (teamService.isMoneyEnough(player.Teamid, cost))
+            Upgrade upgrade = await upgradeRepository.getUpgrade(upgradeDTO.Playerid, upgradeDTO.Attribute);
+            if (await teamService.isMoneyEnough(upgrade.Teamid, upgrade.Cost))
             {
-                Upgrade upgrade = upgradeRepository.getUpgrade(upgradeDTO.Playerid, upgradeDTO.Attribute);
                 upgrade.Expired = 1;
-                return upgradeRepository.updateUpgrade(upgrade) && teamService.updateMoney(player.Teamid, cost);
+                return await upgradeRepository.updateUpgrade(upgrade) && await teamService.updateMoney(upgrade.Teamid, upgrade.Cost);
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
 
-        public bool requestPlayerAttributeUpdate(UpgradeDTO upgradeDTO)
+        public async Task<bool> requestPlayerAttributeUpdate(UpgradeDTO upgradeDTO)
         {
-            Player player = playerRepository.getMyPlayer(upgradeDTO.Playerid);
+            Player player = await playerRepository.getMyPlayer(upgradeDTO.Playerid);
             sbyte attributeLevel = (sbyte)player.GetType().GetProperty(upgradeDTO.Attribute).GetValue(player);
-            sbyte gymLevel = infrastructureRepository.getInfrastructure(player.Teamid).Gym;
-            DateTime expiryDate = UpgradeTimeAndMoney.calculateTime(attributeLevel, gymLevel);
-            upgradeDTO.Expirydate = expiryDate;
+            sbyte gymLevel = (await infrastructureRepository.getInfrastructure(player.Teamid)).Gym;
+            upgradeDTO.Expirydate = UpgradeTimeAndMoney.calculateTime(attributeLevel, gymLevel);
+            upgradeDTO.Cost = UpgradeTimeAndMoney.calculateCost(attributeLevel, gymLevel);
             Upgrade upgrade = mapper.Map<Upgrade>(upgradeDTO);
-            return upgradeRepository.addPlayerUpgradeRequest(upgrade);
+            return await upgradeRepository.addPlayerUpgradeRequest(upgrade);
         }
     }
 }

@@ -4,6 +4,6 @@ namespace BK_Server.Repositories
 {
     public interface IInfrastructureRepository
     {
-        Infrastructure getInfrastructure(sbyte teamid);
+        Task<Infrastructure> getInfrastructure(sbyte teamid);
     }
 }

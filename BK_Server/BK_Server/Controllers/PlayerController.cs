@@ -21,30 +21,30 @@ namespace BK_Server.Controllers
         }
 
         [HttpPost("getMyPlayers")]
-        public ActionResult<GetPlayerDTO> getMyPlayers([FromBody] sbyte teamid)
+        public async Task<ActionResult<GetPlayerDTO>> getMyPlayers([FromBody] sbyte teamid)
         {
-            var myPlayers = playerService.getMyPlayers(teamid);
+            var myPlayers = await playerService.getMyPlayers(teamid);
             return Ok(myPlayers);
         }
 
         [HttpPut("updatePlayingStatus")]
-        public IActionResult updatePlayingStatus([FromBody] UpdatePlayerDTO playerDTO)
+        public async Task<ActionResult<bool>> updatePlayingStatus([FromBody] UpdatePlayerDTO playerDTO)
         {
-            var result = playerService.updatePlayingStatus(playerDTO);
+            var result = await playerService.updatePlayingStatus(playerDTO);
             return Ok(result);
         }
 
         [HttpPost("requestPlayerAttributeUpdate")]
-        public IActionResult requestPlayerAttributeUpdate([FromBody] UpgradeDTO upgrade)
+        public async Task<ActionResult<bool>> requestPlayerAttributeUpdate([FromBody] UpgradeDTO upgrade)
         {
-            var result = playerService.requestPlayerAttributeUpdate(upgrade);
+            var result = await playerService.requestPlayerAttributeUpdate(upgrade);
             return Ok(result);
         }
 
         [HttpPut("purchasePlayerAttributeUpdate")]
-        public IActionResult purchasePlayerAttributeUpdate([FromBody] UpgradeDTO upgrade)
+        public async Task<ActionResult<bool>> purchasePlayerAttributeUpdate([FromBody] UpgradeDTO upgrade)
         {
-            var result = playerService.purchasePlayerAttributeUpdate(upgrade);
+            var result = await playerService.purchasePlayerAttributeUpdate(upgrade);
             return Ok(result);
         }
     }

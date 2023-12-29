@@ -12,28 +12,25 @@ namespace BK_Server.Services
             this.teamRepository = teamRepository;
         }
 
-        public bool isMoneyEnough(sbyte teamid, short cost)
+        public async Task<bool> isMoneyEnough(sbyte teamid, short cost)
         {
-            return teamRepository.getTeamMoney(teamid) > cost ? true : false;
+            return await teamRepository.getTeamMoney(teamid) > cost;
         }
 
-        public Team getMyTeam(sbyte teamid)
+        public async Task<Team> getMyTeam(sbyte teamid)
         {
-            return teamRepository.getMyTeam(teamid);
+            return await teamRepository.getMyTeam(teamid);
         }
 
-        public bool updateMoney(sbyte teamid, short cost)
+        public async Task<bool> updateMoney(sbyte teamid, short cost)
         {
-            Team team = teamRepository.getMyTeam(teamid);
+            Team team = await teamRepository.getMyTeam(teamid);
             if (team.Money > cost)
             {
                 team.Money -= cost;
-                return teamRepository.updateMoney(team);
+                return await teamRepository.updateMoney(team);
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
     }
 }

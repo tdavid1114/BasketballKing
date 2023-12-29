@@ -13,31 +13,31 @@ namespace BK_Server.Repositories
             this.context = context;
         }
 
-        public IQueryable<Player> getMarketPlayers()
+        public Task<List<Player>> getMarketPlayers()
         {
-            return context.Set<Player>();
+            return context.Set<Player>().ToListAsync();
         }
 
-        public IQueryable<Player> getMyPlayers(sbyte teamid)
+        public Task<List<Player>> getMyPlayers(sbyte teamid)
         {
-            return context.Set<Player>().Where(x => x.Teamid == teamid);
+            return context.Set<Player>().Where(x => x.Teamid == teamid).ToListAsync();
         }
 
-        public Player getMyPlayer(short playerid)
+        public Task<Player> getMyPlayer(short playerid)
         {
-            return context.Set<Player>().Where(x => x.Playerid == playerid).FirstOrDefault();
+            return context.Set<Player>().Where(x => x.Playerid == playerid).FirstOrDefaultAsync();
         }
 
-        public bool updatePlayingStatus(Player player)
+        public async Task<bool> updatePlayingStatus(Player player)
         {
             context.Update(player);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool Save()
+        public async Task<bool> SaveAsync()
         {
-            var saved = context.SaveChanges();
-            return saved > 0 ? true : false;
+            var saved = await context.SaveChangesAsync();
+            return saved > 0;
         }
     }
 }

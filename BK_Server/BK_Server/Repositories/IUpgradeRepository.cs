@@ -4,14 +4,14 @@ namespace BK_Server.Repositories
 {
     public interface IUpgradeRepository
     {
-        bool addPlayerUpgradeRequest(Upgrade upgrade);
+        Task<bool> addPlayerUpgradeRequest(Upgrade upgrade);
 
-        Upgrade getUpgrade(short playerid, string attribute);
+        Task<Upgrade> getUpgrade(short playerid, string attribute);
 
-        IQueryable<Upgrade> GetActiveUpgrades();
+        Task<List<Upgrade>> getActiveUpgradesByPlayer(short playerid);
 
-        bool Save();
+        Task<bool> SaveAsync();
 
-        bool updateUpgrade(Upgrade upgrade);
+        Task<bool> updateUpgrade(Upgrade upgrade);
     }
 }

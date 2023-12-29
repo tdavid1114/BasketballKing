@@ -5,14 +5,14 @@ namespace BK_Server.Services
 {
     public interface IPlayerService
     {
-        IQueryable<Player> getMarketPlayers();
+        Task<List<Player>> getMarketPlayers();
 
-        List<GetPlayerDTO> getMyPlayers(sbyte teamid);
+        Task<List<GetPlayerDTO>> getMyPlayers(sbyte teamid);
 
-        bool purchasePlayerAttributeUpdate(UpgradeDTO upgradeDTO);
+        Task<bool> purchasePlayerAttributeUpdate(UpgradeDTO upgradeDTO);
 
-        bool requestPlayerAttributeUpdate(UpgradeDTO upgradeDTO);
+        Task<bool> requestPlayerAttributeUpdate(UpgradeDTO upgradeDTO);
 
-        bool updatePlayingStatus(UpdatePlayerDTO playerDTO);
+        Task<bool> updatePlayingStatus(UpdatePlayerDTO playerDTO);
     }
 }

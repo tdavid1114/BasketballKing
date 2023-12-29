@@ -1,4 +1,5 @@
 ﻿using BK_Server.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace BK_Server.Repositories
@@ -12,26 +13,25 @@ namespace BK_Server.Repositories
             this.context = context;
         }
 
-        public double getTeamMoney(sbyte teamid)
+        public async Task<double> getTeamMoney(sbyte teamid)
         {
-            return context.Set<Team>().Where(x => x.Teamid == teamid).FirstOrDefault().Money;
+            return (await context.Set<Team>().Where(x => x.Teamid == teamid).FirstOrDefaultAsync()).Money;
         }
 
-        public Team getMyTeam(sbyte teamid)
+        public Task<Team> getMyTeam(sbyte teamid)
         {
-            return context.Set<Team>().Where(x => x.Teamid == teamid).FirstOrDefault();
+            return context.Set<Team>().Where(x => x.Teamid == teamid).FirstOrDefaultAsync();
         }
 
-        public bool updateMoney(Team team)
+        public async Task<bool> updateMoney(Team team)
         {
             context.Update(team);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool Save()
+        public async Task<bool> SaveAsync()
         {
-            var saved = context.SaveChanges();
-            return saved > 0 ? true : false;
+            return (await context.SaveChangesAsync()) > 0;
         }
     }
 }

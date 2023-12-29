@@ -4,10 +4,10 @@ namespace BK_Server.Repositories
 {
     public interface ITeamRepository
     {
-        Team getMyTeam(sbyte teamid);
+        Task<Team> getMyTeam(sbyte teamid);
 
-        double getTeamMoney(sbyte teamid);
+        Task<double> getTeamMoney(sbyte teamid);
 
-        bool updateMoney(Team team);
+        Task<bool> updateMoney(Team team);
     }
 }

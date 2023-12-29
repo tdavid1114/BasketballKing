@@ -175,6 +175,8 @@ namespace BK_Server.Models
                     .HasMaxLength(30)
                     .HasColumnName("attribute");
 
+                entity.Property(e => e.Cost).HasColumnName("cost");
+
                 entity.Property(e => e.Expired).HasColumnName("expired");
 
                 entity.Property(e => e.Expirydate)

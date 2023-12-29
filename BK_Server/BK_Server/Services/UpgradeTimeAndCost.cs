@@ -9,14 +9,14 @@ namespace BK_Server.Services
         private static TimeSpan time;
         private static double money;
 
-        public static short calculateMoney(sbyte attributeLevel, sbyte gymLevel)
+        public static short calculateCost(sbyte attributeLevel, sbyte gymLevel)
         {
             return (short)(20 + (attributeLevel * 3) - (gymLevel * 1.5));
         }
 
         public static DateTime calculateTime(sbyte attributeLevel, sbyte gymLevel)
         {
-            return DateTime.Now + TimeSpan.FromSeconds(1 + (attributeLevel * 5) - (gymLevel * 2));
+            return DateTime.Now + TimeSpan.FromSeconds(1 + (attributeLevel * 15) - (gymLevel * 6));
         }
     }
 }

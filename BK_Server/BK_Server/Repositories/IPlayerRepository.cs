@@ -4,13 +4,13 @@ namespace BK_Server.Repositories
 {
     public interface IPlayerRepository
     {
-        IQueryable<Player> getMarketPlayers();
+        Task<List<Player>> getMarketPlayers();
 
-        IQueryable<Player> getMyPlayers(sbyte teamid);
+        Task<List<Player>> getMyPlayers(sbyte teamid);
 
         //bool UpdatePlayingStatus(short playerid, sbyte status);
-        bool updatePlayingStatus(Player player);
+        Task<bool> updatePlayingStatus(Player player);
 
-        Player getMyPlayer(short playerid);
+        Task<Player> getMyPlayer(short playerid);
     }
 }
